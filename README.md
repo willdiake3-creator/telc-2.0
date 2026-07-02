@@ -1,1 +1,739 @@
-# telc-2.0
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>telc Deutsch B1 — Interaktive Prüfungssimulation</title>
+    <style>
+        :root {
+            --primary: #005A9C;
+            --secondary: #E31B23;
+            --dark: #333333;
+            --light: #F4F7F9;
+            --white: #FFFFFF;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; }
+        header { background-color: var(--primary); color: var(--white); padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .nav-tabs { display: none; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--primary); }
+        .tab-btn { background: #e0e0e0; border: none; padding: 12px 20px; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; transition: all 0.3s; }
+        .tab-btn.active { background: var(--primary); color: var(--white); }
+        .tab-content { display: none; background: var(--white); padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tab-content.active { display: block; }
+        h2 { color: var(--primary); border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        h3 { color: #555; margin-top: 25px; }
+        .instruction-box { background-color: #e1f5fe; padding: 15px; border-left: 5px solid #0288d1; margin-bottom: 20px; font-style: italic; }
+        .text-reading-box { background: #fff; border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 5px; line-height: 1.6; max-height: 400px; overflow-y: auto; }
+        .question-block { margin-bottom: 25px; padding: 15px; background: #fafafa; border-left: 4px solid var(--primary); border-radius: 4px; transition: background-color 0.4s; }
+        .options { margin-top: 10px; }
+        .option-label { display: block; margin: 8px 0; cursor: pointer; padding: 4px; border-radius: 4px; }
+        select { width: 100%; max-width: 500px; padding: 8px; font-size: 15px; border-radius: 4px; margin-top: 5px; }
+        .grid-ads { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .ad-card { border: 1px dashed #777; padding: 15px; background: #fffde7; border-radius: 5px; }
+        .ad-title { font-weight: bold; color: var(--secondary); border-bottom: 1px solid #ccc; margin-bottom: 5px; }
+        .btn-submit { background-color: var(--success); color: var(--white); border: none; padding: 15px 30px; font-size: 18px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; display: none; width: 100%; }
+        .results-box { display: none; margin-top: 20px; padding: 20px; background: #e8f5e9; border: 2px solid var(--success); border-radius: 8px; }
+        .info-badge { background: #e1f5fe; color: #0288d1; padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        
+        /* Neue Styles für Login & Korrektur */
+        .login-box { max-width: 500px; margin: 50px auto; background: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-top: 4px solid var(--primary); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .btn-login { background-color: var(--primary); color: var(--white); border: none; padding: 12px; width: 100%; font-size: 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .wrong-answer { background-color: #fce8e6 !important; border-left-color: var(--danger) !important; }
+        .correct-answer { background-color: #e6f4ea !important; border-left-color: var(--success) !important; }
+        .correction-text { margin-top: 8px; font-size: 14px; color: #c5221f; font-weight: bold; display: block; }
+
+        audio { width: 100%; margin: 10px 0 20px 0; }
+        textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; line-height: 1.5; resize: vertical; }
+        .speaker-box { border: 2px solid #ccc; background-color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>telc Deutsch B1 Zertifikat Deutsch</h1>
+    <p>Vollständige Interaktive Prüfungssimulation (Alle Module)</p>
+</header>
+
+<div class="container">
+    
+    <!-- STARTSEITE / IDENTIFIKATION -->
+    <div id="login-screen" class="login-box">
+        <h2 style="text-align: center; margin-top: 0;">Anmeldung zur Prüfung</h2>
+        <form id="login-form" onsubmit="startTest(event)">
+            <div class="form-group">
+                <label for="username">Benutzername:</label>
+                <input type="text" id="username" required placeholder="z.B. Max Mustermann">
+            </div>
+            <div class="form-group">
+                <label for="useremail">E-Mail-Adresse:</label>
+                <input type="email" id="useremail" required placeholder="z.B. max@beispiel.de">
+            </div>
+            <button type="submit" class="btn-login">Test starten</button>
+        </form>
+    </div>
+
+    <!-- NAVIGATIONSTABS (Erst nach Login sichtbar) -->
+    <div class="nav-tabs" id="main-nav">
+        <button class="tab-btn active" onclick="openTab(event, 'lesen1')">Lesen Teil 1</button>
+        <button class="tab-btn" onclick="openTab(event, 'lesen2')">Lesen Teil 2</button>
+        <button class="tab-btn" onclick="openTab(event, 'lesen3')">Lesen Teil 3</button>
+        <button class="tab-btn" onclick="openTab(event, 'bs1')">SprachBausteine Teil 1</button>
+        <button class="tab-btn" onclick="openTab(event, 'bs2')">SprachBausteine Teil 2</button>
+        <button class="tab-btn" onclick="openTab(event, 'hoeren')">Hörverstehen</button>
+        <button class="tab-btn" onclick="openTab(event, 'schreiben')">Schriftlicher Ausdruck</button>
+        <button class="tab-btn" onclick="openTab(event, 'sprechen')">Mündlicher Ausdruck</button>
+    </div>
+
+    <!-- LESEVERSTEHEN TEIL 1 -->
+    <div id="lesen1" class="tab-content">
+        <h2>Leseverstehen Teil 1</h2>
+        <div class="instruction-box">
+            Lesen Sie die Überschriften a–j und die Texte 1–5. Finden Sie für jeden Text die passende Überschrift. Sie können jede Überschrift nur einmal benutzen.
+        </div>
+        
+        <div style="background: #eee; padding: 15px; margin-bottom: 25px; border-radius: 5px;">
+            <strong>Überschriftenliste:</strong><br>
+            a) Immer mehr deutsche Familien reisen mit der Bahn<br>
+            b) Buchtipp: Hilfe bei Schlafproblemen<br>
+            c) Der Computer: Liebstes Hobby von Deutschlands Frauen<br>
+            d) Neu bei der Bahn: Spezielle Informationen und Angebote für Radfahrer<br>
+            e) Neu am Markt: Billige Schlaftabletten<br>
+            f) Familien reisen billiger<br>
+            g) Urlaub mit dem Fahrrad in Deutschland immer beliebter<br>
+            h) Kultur im Urlaub: Interessen je nach Alter unterschiedlich<br>
+            i) Umfrage: Wer verwendet den Computer am häufigsten?<br>
+            j) Deutschland: Immer mehr Touristen reisen in den Westen
+        </div>
+
+        <div class="question-block" id="block_l_q1">
+            <p><strong>Text 1:</strong> Wer ist der typische Computerfan? Das B.A.T. Freizeitforschungsinstitut Hamburg ermittelte einige Eigenschaften: Er ist männlich, jung und hat einen höheren Schulabschluss. Bei der Beschäftigung am heimischen Computer stehen Textverarbeitung und Spiele ganz oben, es folgen private Buchhaltung, Grafikprogramme und Tabellenkalkulation.</p>
+            <select id="l_q1"><option value="">-- Überschrift wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option></select>
+        </div>
+
+        <div class="question-block" id="block_l_q2">
+            <p><strong>Text 2:</strong> „Bahn&Bike“ heißt ein 222-seitiger Prospekt, den die Deutsche Bahn AG in Zusammenarbeit mit der Deutschen Zentrale für Tourismus herausgebracht hat und der wichtige Informationen für jene bereitstellt, die ihren Radurlaub mit Bahnfahren verbinden wollen. Das Motto lautet: Hin mit der Bahn – das Rad vor Ort mieten. Der Prospekt enthält Angaben zur Streckenlänge und Wegbeschaffenheit, Adressen von Verleihstationen, verweist auf Sehenswürdigkeiten sowie Unterkünfte und wird durch Karten ergänzt. Die Broschüre kostet 5 Euro und ist im Buchhandel beziehungsweise an Fahrkartenschaltern zu beziehen.</p>
+            <select id="l_q2"><option value="">-- Überschrift wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option></select>
+        </div>
+
+        <div class="question-block" id="block_l_q3">
+            <p><strong>Text 3:</strong> Ausführliche Informationen zum Thema „Schlafstörungen“ finden Sie im gleichnamigen Patientenratgeber von Dr. med. Fritz Hohagen. Sie erfahren, was den Schlaf stört und was Sie dagegen unternehmen können. Für 9,95 Euro erhalten Sie das Buch in Apotheken oder direkt beim Wort&Bild Verlag, 82065 Baierbrunn.</p>
+            <select id="l_q3"><option value="">-- Überschrift wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option></select>
+        </div>
+
+        <div class="question-block" id="block_l_q4">
+            <p><strong>Text 4:</strong> Jetzt wird für Familien Reisen mit der Bahn zwischen Österreich und Deutschland noch ein gutes Stück günstiger. Denn ab 6. Oktober gibt es den Familien-Super-Sparpreis. Ein echter Traumpreis für die ganze Familie vom Baby bis zum Großpapa – da kann man wirklich sparen. Der Familien-Super-Sparpreis gilt für Familien, bestehend aus ein oder zwei Erwachsenen (Eltern, auch Großeltern) und deren Kindern/Enkelkindern bis zum vollendeten 17. Lebensjahr, wobei mindestens ein Kind/Enkelkind an der Reise teilnehmen muss.</p>
+            <select id="l_q4"><option value="">-- Überschrift wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option></select>
+        </div>
+
+        <div class="question-block" id="block_l_q5">
+            <p><strong>Text 5:</strong> Touristen zwischen 14 und 29 Jahren sowie zwischen 40 und 49 Jahren haben ein besonders großes Interesse an der Kultur des jeweiligen Reiselandses, während die Gruppe der 30- bis 39-jährigen im Urlaub eine Kulturpause einlegt. Dies geht aus der neuesten Analyse der Forschungsgemeinschaft Urlaub und Reisen e. V. hervor. Urlauber aus Ostdeutschland, so die Studie, zeigen wiederum mehr Kulturinteresse als Reisende aus dem Westen. Grundsätzlich gelte: Je höher das Einkommen und die Schulbildung sind, umso mehr besteht im Urlaub der Wunsch, Land und Leute kennenzulernen.</p>
+            <select id="l_q5"><option value="">-- Überschrift wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option></select>
+        </div>
+    </div>
+
+    <!-- LESEVERSTEHEN TEIL 2 -->
+    <div id="lesen2" class="tab-content">
+        <h2>Leseverstehen Teil 2</h2>
+        <div class="instruction-box">Lesen Sie den Text und die Aufgaben 6–10. Welche Lösung (a, b oder c) ist jeweils richtig?</div>
+        
+        <div class="text-reading-box">
+            <h3>Büro-Werkstatt: Chance für behinderte Menschen</h3>
+            <strong>Computerarbeit im Auftrag privater Firmen – jeder Dritte findet nach einem fünfmonatigen Kurs einen Job. Interessierte Unternehmen werden noch gesucht.</strong><br><br>
+            Margit, die junge Frau im Rollstuhl, erledigt die Lohnverrechnung für einen Verlag. Reinhard, seit der Geburt gehbehindert, tippt für die Direktion von Hewlett Packard Protokolle und Preislisten. Martin, seine Unterarme sind verkürzt, layoutet die Speisekarte eines Wiener Restaurants.<br><br>
+            Drei junge körperbehinderte Menschen am Computer – alle drei können auf eine abgeschlossene kaufmännische Ausbildung verweisen. Dennoch hat man sie auf dem Arbeitsamt als „schwer vermittelbar“ eingestuft – was de facto nicht vermittelbar bedeutet. Zurzeit arbeiten Margit, Reinhard und Martin – gemeinsam mit sieben anderen behinderten Menschen – in der „Büro-Werkstatt“ in Wien-Stadlau. Hier werden körperbehinderte Schulabgänger auf das Berufsleben vorbereitet. In einem fünfmonatigen Kurs lernen sie, das in der Schule Gelernte in die Praxis umzusetzen. Ihre Dienste werden von Privatfirmen (darunter auch die OMV und zwei Banken) zugekauft.<br><br>
+            Gleichzeitig wird ihnen bei der Jobsuche geholfen. „Leicht ist das nicht“, sagt Betreuer Günther Hos. „Es gibt so viele Arbeitslose, die nicht behindert sind. Wer nimmt schon einen Mitarbeiter mit Handicap?“ Zwar wären die Firmen gesetzlich verpflichtet, pro 25 Beschäftigte einen Behinderten einzustellen. Die meisten Firmen nützen jedoch die Möglichkeit, sich „freizukaufen“ (die sogenannte „Ausgleichstaxe“ beträgt rund 150 Euro monatlich).<br><br>
+            Trotz der Rahmenbedingungen kann Hos mit einer durchaus positiven Bilanz aufwarten: „Immerhin haben wir seit der Vereinsgründung vor drei Jahren ein Drittel unserer Leute untergebracht.“ Auch ein Dienst an der Allgemeinheit, denn jede Vermittlung bedeutet: ein Arbeitsloser weniger, ein Steuerzahler mehr.<br><br>
+            Gegründet wurde die Büro-Werkstatt von einer Lehrerin: Heide Hanisch, die in einer Wiener berufsbildenden Schule Geografie und Geschichte unterrichtet, wollte nicht länger hinnehmen, dass ihre behinderten Schüler erst ausgebildet werden, um dann als Arbeitnehmer nicht gebraucht zu werden.<br><br>
+            Nähere Informationen, auch für interessierte Firmen: „Büro-Werkstatt“ in Wien-Stadlau, Telefon: 0222/28 38 575.
+        </div>
+
+        <div class="question-block" id="block_q6">
+            <p><strong>6. In einem fünfmonatigen Kurs können die Teilnehmer...</strong></p>
+            <label class="option-label"><input type="radio" name="q6" value="a"> a) eine berufliche Ausbildung abschließen.</label>
+            <label class="option-label"><input type="radio" name="q6" value="b"> b) lernen, was sie in der Schule verpasst haben.</label>
+            <label class="option-label"><input type="radio" name="q6" value="c"> c) praktische Erfahrungen mit der Büroarbeit sammeln.</label>
+        </div>
+        <div class="question-block" id="block_q7">
+            <p><strong>7. Die Büro-Werkstatt versucht außerdem,...</strong></p>
+            <label class="option-label"><input type="radio" name="q7" value="a"> a) auch jenen Arbeitslosen zu helfen, die nicht behindert sind.</label>
+            <label class="option-label"><input type="radio" name="q7" value="b"> b) Behinderte auf die Abschlussprüfungen vorzubereiten.</label>
+            <label class="option-label"><input type="radio" name="q7" value="c"> c) für die behinderten Menschen eine Arbeit zu finden.</label>
+        </div>
+        <div class="question-block" id="block_q8">
+            <p><strong>8. Laut Gesetz müssen österreichische Firmen pro 25 Beschäftigte...</strong></p>
+            <label class="option-label"><input type="radio" name="q8" value="a"> a) eine besondere Steuer zahlen.</label>
+            <label class="option-label"><input type="radio" name="q8" value="b"> b) einen Behinderten einstellen oder eine monatliche Gebühr bezahlen.</label>
+            <label class="option-label"><input type="radio" name="q8" value="c"> c) für jeden Behinderten monatlich 150 Euro bezahlen.</label>
+        </div>
+        <div class="question-block" id="block_q9">
+            <p><strong>9. Seit der Vereinsgründung...</strong></p>
+            <label class="option-label"><input type="radio" name="q9" value="a"> a) konnte für ein Drittel der behinderten Kursteilnehmer eine Arbeit gefunden werden.</label>
+            <label class="option-label"><input type="radio" name="q9" value="b"> b) konnte Günther Hos für den Verein schon viel Geld sparen.</label>
+            <label class="option-label"><input type="radio" name="q9" value="c"> c) zahlen Arbeitslose um ein Drittel weniger Steuern.</label>
+        </div>
+        <div class="question-block" id="block_q10">
+            <p><strong>10. Die Lehrerin, die die Büro-Werkstatt gegründet hat,...</strong></p>
+            <label class="option-label"><input type="radio" name="q10" value="a"> a) wollte etwas tun, damit Behinderte einen Arbeitsplatz erhalten.</label>
+            <label class="option-label"><input type="radio" name="q10" value="b"> b) wollte nicht länger Geografie und Geschichte unterrichten.</label>
+            <label class="option-label"><input type="radio" name="q10" value="c"> c) wird nach der Ausbildung der Behinderten nicht mehr gebraucht.</label>
+        </div>
+    </div>
+
+    <!-- LESEVERSTEHEN TEIL 3 -->
+    <div id="lesen3" class="tab-content">
+        <h2>Leseverstehen Teil 3</h2>
+        <div class="instruction-box">Lesen Sie die Situationen 11–20 und die Anzeigen a–l. Finden Sie für jede Situation die passende Anzeige. Wenn Sie zu einer Situation keine Anzeige finden, markieren Sie ein x.</div>
+        
+        <h3>Verfügbare Anzeigen (a–l)</h3>
+        <div class="grid-ads">
+            <div class="ad-card"><div class="ad-title">Anzeige a</div><strong>Asiatisches Spezialitäten-Restaurant Bong-Hong</strong><br>Alle Gerichte auch zum Mitnehmen und Heimservice. Tel: 089/785 56 52</div>
+            <div class="ad-card"><div class="ad-title">Anzeige b</div><strong>Ristorante OLINDO</strong><br>Italienisches Restaurant. Bei schönem Wetter Gartenbetrieb. Fallmerayerstr. 16</div>
+            <div class="ad-card"><div class="ad-title">Anzeige c</div><strong>Helmut Schwabe Vers.-Büro</strong><br>Sind Sie für den Urlaub auch gut versichert? Fragen Sie uns! Tel: 089-303097</div>
+            <div class="ad-card"><div class="ad-title">Anzeige d</div><strong>SEATOP Reisen</strong><br>Sommertermine nach USA noch Plätze frei. Mietwagen, Hotelvermittlung. Tel: 53 91 84</div>
+            <div class="ad-card"><div class="ad-title">Anzeige e</div><strong>Council Travel</strong><br>Spezialpreise für Studenten/Jugendliche. New York, Los Angeles, Paris. Adalbertstr. 32</div>
+            <div class="ad-card"><div class="ad-title">Anzeige f</div><strong>Kreittmayr Kneipe</strong><br>Kneipe mit Biergarten, Billard und Kegelbahnen. Kreittmayrstr. 15</div>
+            <div class="ad-card"><div class="ad-title">Anzeige g</div><strong>Nachprüfung - intensive Vorbereitung</strong><br>Lehrerin bereitet intensiv vor in Latein, Englisch, Französisch, Deutsch. Tel: 308 51 17</div>
+            <div class="ad-card"><div class="ad-title">Anzeige h</div><strong>Unterricht / Nachhilfe</strong><br>Nachhilfe in Mathe-Physik mit viel Geduld u. Erfahrung von Gymnasiallehrer. Tel: 260 95 57</div>
+            <div class="ad-card"><div class="ad-title">Anzeige i</div><strong>Internationaler Stammtisch</strong><br>Deutsche und ausländische Jugendliche diskutieren Probleme. Montag, 4. Sept. 19.30 Uhr</div>
+            <div class="ad-card"><div class="ad-title">Anzeige j</div><strong>City-Reisebüro</strong><br>Campmobile USA/CANADA ab € 35,- pro Tag. Früh buchen lohnt! Tel: 089 290 45 65</div>
+            <div class="ad-card"><div class="ad-title">Anzeige k</div><strong>Kurse für Logopädie / Sprachschwierigkeiten</strong><br>Gisela Geiger, Leopoldstraße 83. Für Erwachsene und Kinder. Tel: 39 99 95</div>
+            <div class="ad-card"><div class="ad-title">Anzeige l</div><strong>SPRACHBÖRSE</strong><br>Deutsch als Fremdsprache. Prüfungskurse. Minigruppen und Einzelunterricht. Tel: 16 14 79</div>
+        </div>
+
+        <h3>Situationen wählen:</h3>
+        <div class="question-block" id="block_l_s11">
+            <p><strong>11.</strong> Sie möchten mit Freunden in einem Restaurant essen. Da das Wetter schön ist, möchten Sie gerne draußen sitzen.</p>
+            <select id="l_s11"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x (Keine Anzeige passt)</option></select>
+        </div>
+        <div class="question-block" id="block_l_s12">
+            <p><strong>12.</strong> Sie möchten heute nicht selbst kochen, sondern lieber ein warmes Essen kaufen und mit nach Hause nehmen.</p>
+            <select id="l_s12"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s13">
+            <p><strong>13.</strong> In den Sommerferien möchten Sie gerne in die USA fliegen. Sie brauchen dort auch eine Unterkunft.</p>
+            <select id="l_s13"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s14">
+            <p><strong>14.</strong> Reisebüros bieten billigere Flüge an, wenn man in letzter Minute bucht. Sie suchen so einen Flug.</p>
+            <select id="l_s14"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s15">
+            <p><strong>15.</strong> Ihre Tochter, die studiert, möchte in die USA fliegen. Sie suchen einen billigen Flug für sie.</p>
+            <select id="l_s15"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s16">
+            <p><strong>16.</strong> Ihr Sohn ist schlecht in Mathematik und braucht deshalb noch Unterricht außerhalb der Schule.</p>
+            <select id="l_s16"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s17">
+            <p><strong>17.</strong> Das Kind Ihrer Freunde hat Probleme beim Sprechen und braucht deshalb Hilfe.</p>
+            <select id="l_s17"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s18">
+            <p><strong>18.</strong> Sie haben einen jungen Franzosen zu Besuch. Sie möchten, dass er in einen Deutschkurs geht.</p>
+            <select id="l_s18"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s19">
+            <p><strong>19.</strong> Sie möchten, dass Ihr Sohn in einen Jugendclub geht.</p>
+            <select id="l_s19"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+        <div class="question-block" id="block_l_s20">
+            <p><strong>20.</strong> Sie interessieren sich für die Probleme ausländischer Jugendlicher in Deutschland.</p>
+            <select id="l_s20"><option value="">-- Anzeige wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="x">x</option></select>
+        </div>
+    </div>
+
+    <!-- SPRACHBAUSTEINE TEIL 1 -->
+    <div id="bs1" class="tab-content">
+        <h2>Sprachbausteine Teil 1</h2>
+        <div class="instruction-box">Lesen Sie den Text und schließen Sie die Lücken 21–30. Welche Lösung (a, b oder c) ist jeweils richtig?</div>
+        
+        <div class="text-reading-box" style="font-size: 16px;">
+            Liebe Karin,<br><br>
+            nach meinem Praktikum in Frankreich bin ich jetzt wieder zu Hause. Wie du ja weißt, wollte ich eigentlich nach Paris, ___(21)___ das hat dann leider nicht geklappt. Doch dann habe ich eine Stelle als Praktikant bei ___(22)___ Firma in Straßburg gefunden. Dort ___(23)___ ich drei Monate geblieben. Die Arbeit war sehr ___(24)___ – ich musste schon um 8.00 Uhr im Büro sein, hat mir aber ___(25)___ sehr gut gefallen. Ich habe ___(26)___ dieser Zeit in verschiedenen Abteilungen arbeiten und so nicht nur etwas über die Herstellung von Fernsehgeräten ___(27)___, sondern auch über den Verkauf. Und die Kollegen, mit ___(28)___ ich am meisten zu tun hatte, waren wirklich sehr nett. Nach dem Praktikum habe ich noch zwei Wochen Urlaub bei ___(29)___ Freunden gemacht. Darüber erzähle ich ___(30)___ bald mehr – für heute muss ich Schluss machen.<br><br>
+            Liebe Grüße<br>Fritz
+        </div>
+
+        <div class="question-block" id="block_b21"><p><strong>Lücke 21</strong></p><label class="option-label"><input type="radio" name="b21" value="a"> a) aber</label><label class="option-label"><input type="radio" name="b21" value="b"> b) denn</label><label class="option-label"><input type="radio" name="b21" value="c"> c) sondern</label></div>
+        <div class="question-block" id="block_b22"><p><strong>Lücke 22</strong></p><label class="option-label"><input type="radio" name="b22" value="a"> a) eine</label><label class="option-label"><input type="radio" name="b22" value="b"> b) einen</label><label class="option-label"><input type="radio" name="b22" value="c"> c) einer</label></div>
+        <div class="question-block" id="block_b23"><p><strong>Lücke 23</strong></p><label class="option-label"><input type="radio" name="b23" value="a"> a) bin</label><label class="option-label"><input type="radio" name="b23" value="b"> b) habe</label><label class="option-label"><input type="radio" name="b23" value="c"> c) wurde</label></div>
+        <div class="question-block" id="block_b24"><p><strong>Lücke 24</strong></p><label class="option-label"><input type="radio" name="b24" value="a"> a) anstrengend</label><label class="option-label"><input type="radio" name="b24" value="b"> b) anstrengende</label><label class="option-label"><input type="radio" name="b24" value="c"> c) anstrengendes</label></div>
+        <div class="question-block" id="block_b25"><p><strong>Lücke 25</strong></p><label class="option-label"><input type="radio" name="b25" value="a"> a) trotzdem</label><label class="option-label"><input type="radio" name="b25" value="b"> b) wegen</label><label class="option-label"><input type="radio" name="b25" value="c"> c) weshalb</label></div>
+        <div class="question-block" id="block_b26"><p><strong>Lücke 26</strong></p><label class="option-label"><input type="radio" name="b26" value="a"> a) bis</label><label class="option-label"><input type="radio" name="b26" value="b"> b) in</label><label class="option-label"><input type="radio" name="b26" value="c"> c) nach</label></div>
+        <div class="question-block" id="block_b27"><p><strong>Lücke 27</strong></p><label class="option-label"><input type="radio" name="b27" value="a"> a) gelernt</label><label class="option-label"><input type="radio" name="b27" value="b"> b) lernen</label><label class="option-label"><input type="radio" name="b27" value="c"> c) lernte</label></div>
+        <div class="question-block" id="block_b28"><p><strong>Lücke 28</strong></p><label class="option-label"><input type="radio" name="b28" value="a"> a) dem</label><label class="option-label"><input type="radio" name="b28" value="b"> b) denen</label><label class="option-label"><input type="radio" name="b28" value="c"> c) die</label></div>
+        <div class="question-block" id="block_b29"><p><strong>Lücke 29</strong></p><label class="option-label"><input type="radio" name="b29" value="a"> a) meine</label><label class="option-label"><input type="radio" name="b29" value="b"> b) meinen</label><label class="option-label"><input type="radio" name="b29" value="c"> c) meiner</label></div>
+        <div class="question-block" id="block_b30"><p><strong>Lücke 30</strong></p><label class="option-label"><input type="radio" name="b30" value="a"> a) dir</label><label class="option-label"><input type="radio" name="b30" value="b"> b) Ihnen</label><label class="option-label"><input type="radio" name="b30" value="c"> c) uns</label></div>
+    </div>
+
+    <!-- SPRACHBAUSTEINE TEIL 2 -->
+    <div id="bs2" class="tab-content">
+        <h2>Sprachbausteine Teil 2</h2>
+        <div class="instruction-box">Lesen Sie den Text und schließen Sie die Lücken 31–40. Benutzen Sie die Wörter a–o. Jedes Wort passt nur einmal.</div>
+        
+        <div style="background: #eee; padding: 15px; margin-bottom: 25px; border-radius: 5px;">
+            <strong>Wortauswahlliste:</strong><br>
+            a) BESONDERS | b) DA | c) DAFÜR | d) DAMALS | e) DAMIT | f) DANKBAR | g) DESHALB | h) FÜR | i) GERNE | j) KÖNNTEN | k) MIT | l) MÜSSTEN | m) SCHLIESSLICH | n) WANN | o) WENN
+        </div>
+
+        <div class="text-reading-box">
+            Sehr geehrter Herr Janosch,<br><br>
+            ich habe Ihre Anzeige gelesen und interessiere mich sehr ___(31)___ Ihr Angebot. Ich möchte mit ___(32)___ meiner Familie vom 10.–24. August in Österreich Urlaub machen und hätte ___(33)___ noch nähere Informationen. Meine Frau und mich interessiert ganz ___(34)___ das Freizeitprogramm für Kinder, ___(35)___ wir zwei Kinder (3 und 8 Jahre) haben. Gibt es Schwimm- und Tenniskurse für Kinder und ___(36)___ ja, was kosten sie? In Ihrer Anzeige steht auch, dass Sie für die Unterkunft günstige Angebote für Kinder haben. Wie viel ___(37)___ wir pro Woche für unsere Kinder bezahlen? Und ___(38)___ noch eine letzte Frage: Wir haben einen kleinen Hund, von dem sich meine Kinder nicht trennen können und den wir ___(39)___ auch mitnehmen müssten. Wäre das möglich? Bitte schreiben Sie uns so bald wie möglich, ___(40)___ wir uns bald entscheiden können...
+        </div>
+
+        <div class="question-block" id="block_bs2_31"><p>Lücke 31:</p><select id="bs2_31"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_32"><p>Lücke 32:</p><select id="bs2_32"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_33"><p>Lücke 33:</p><select id="bs2_33"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_34"><p>Lücke 34:</p><select id="bs2_34"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_35"><p>Lücke 35:</p><select id="bs2_35"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_36"><p>Lücke 36:</p><select id="bs2_36"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_37"><p>Lücke 37:</p><select id="bs2_37"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_38"><p>Lücke 38:</p><select id="bs2_38"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_39"><p>Lücke 39:</p><select id="bs2_39"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+        <div class="question-block" id="block_bs2_40"><p>Lücke 40:</p><select id="bs2_40"><option value="">-- Wort wählen --</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select></div>
+    </div>
+
+    <!-- HÖRVERSTEHEN MODULE -->
+    <div id="hoeren" class="tab-content">
+        <h2>Subtest 3: Hörverstehen</h2>
+        
+        <div class="instruction-box" style="background-color: #e8f5e9; border-left-color: #28a745;">
+            <strong>Hinweis zur Audiodatei:</strong> Starten Sie hier das Audio für den gesamten Subtest "Hörverstehen" (Teil 1 bis 3).
+        </div>
+        <audio controls style="width: 100%; margin-bottom: 30px; background: #f4f4f4; border-radius: 5px;">
+            <source src="file:///C:/Users/samsung/Desktop/telc_deutsch_b1_zd_uebungstest_4.mp3" type="audio/mpeg">
+            Ihr Browser unterstützt das Audio-Element nicht.
+        </audio>
+
+        <h3>Hörverstehen Teil 1</h3>
+        <div class="instruction-box">
+            Sie hören nun fünf kurze Texte. Dazu sollen Sie fünf Aufgaben lösen. Sie hören diese Texte nur einmal. Entscheiden Sie beim Hören, ob die Aussagen 41–45 richtig oder falsch sind. Markieren Sie PLUS (+) für richtig und MINUS (-) für falsch.
+        </div>
+        
+        <div class="question-block" id="block_q41"><p><strong>41.</strong> Die Sprecherin muss im Haushalt fast alles alleine machen.</p><label class="option-label"><input type="radio" name="q41" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q41" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q42"><p><strong>42.</strong> Der Sprecher wäscht das Geschirr und die Wäsche.</p><label class="option-label"><input type="radio" name="q42" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q42" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q43"><p><strong>43.</strong> Die Sprecherin ist berufstätig und hat keine Zeit für die Hausarbeit.</p><label class="option-label"><input type="radio" name="q43" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q43" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q44"><p><strong>44.</strong> Der Sprecher teilt sich mit seiner Partnerin die Arbeit je nach Situation auf.</p><label class="option-label"><input type="radio" name="q44" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q44" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q45"><p><strong>45.</strong> Die Sprecherin ist froh, dass ihr Mann so viele Hausarbeiten übernimmt.</p><label class="option-label"><input type="radio" name="q45" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q45" value="-"> MINUS (-)</label></div>
+
+        <h3>Hörverstehen Teil 2</h3>
+        <div class="instruction-box">
+            Sie hören nun ein Gespräch. Dazu sollen Sie zehn Aufgaben lösen. Sie hören das Gespräch zweimal. Entscheiden Sie beim Hören, ob die Aussagen 46–55 richtig oder falsch sind. Markieren Sie PLUS (+) für richtig und MINUS (-) für falsch.
+        </div>
+        
+        <div class="question-block" id="block_q46"><p><strong>46.</strong> Der Sportverein plant eine große Feier.</p><label class="option-label"><input type="radio" name="q46" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q46" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q47"><p><strong>47.</strong> Der Journalist unterhält sich mit einer Vertreterin des Sportvereins.</p><label class="option-label"><input type="radio" name="q47" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q47" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q48"><p><strong>48.</strong> Viele Papiere aus den Anfängen des Vereins sind im Krieg verloren gegangen.</p><label class="option-label"><input type="radio" name="q48" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q48" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q49"><p><strong>49.</strong> Der Verein veröffentlicht jedes Jahr eine Festzeitung.</p><label class="option-label"><input type="radio" name="q49" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q49" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q50"><p><strong>50.</strong> Der Verein hatte von Anfang an auch Frauen als Mitglieder.</p><label class="option-label"><input type="radio" name="q50" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q50" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q51"><p><strong>51.</strong> Heute gibt es im Verein mehr Frauen als Männer.</p><label class="option-label"><input type="radio" name="q51" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q51" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q52"><p><strong>52.</strong> Im Verein kann man Sport im Freien und in der Halle treiben.</p><label class="option-label"><input type="radio" name="q52" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q52" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q53"><p><strong>53.</strong> Die Mitglieder müssen die Kosten für ihren Verein alleine tragen.</p><label class="option-label"><input type="radio" name="q53" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q53" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q54"><p><strong>54.</strong> Der Sportverein bietet auch Schwimmkurse an.</p><label class="option-label"><input type="radio" name="q54" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q54" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q55"><p><strong>55.</strong> Einige Leute, die im Verein ausgebildet wurden, arbeiten dort heute als Lehrer.</p><label class="option-label"><input type="radio" name="q55" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q55" value="-"> MINUS (-)</label></div>
+
+        <h3>Hörverstehen Teil 3</h3>
+        <div class="instruction-box">
+            Sie hören nun fünf kurze Texte. Dazu sollen Sie fünf Aufgaben lösen. Sie hören jeden Text zweimal. Entscheiden Sie beim Hören, ob die Aussagen 56–60 richtig oder falsch sind. Markieren Sie PLUS (+) für richtig und MINUS (-) für falsch.
+        </div>
+        
+        <div class="question-block" id="block_q56"><p><strong>56.</strong> Das Büro ist in der Schillerstraße.</p><label class="option-label"><input type="radio" name="q56" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q56" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q57"><p><strong>57.</strong> Der Film „Sommer“ läuft im Filmcasino.</p><label class="option-label"><input type="radio" name="q57" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q57" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q58"><p><strong>58.</strong> Im Süden Bayerns wird es am Nachmittag schön und nicht sehr warm.</p><label class="option-label"><input type="radio" name="q58" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q58" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q59"><p><strong>59.</strong> Im Zugrestaurant können Sie auch Zeitungen kaufen.</p><label class="option-label"><input type="radio" name="q59" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q59" value="-"> MINUS (-)</label></div>
+        <div class="question-block" id="block_q60"><p><strong>60.</strong> Damenröcke kosten heute 39 Euro.</p><label class="option-label"><input type="radio" name="q60" value="+"> PLUS (+)</label><label class="option-label"><input type="radio" name="q60" value="-"> MINUS (-)</label></div>
+    </div>
+
+    <!-- SCHRIFTLICHER AUSDRUCK MODULE -->
+    <div id="schreiben" class="tab-content">
+        <h2>Subtest 4: Schriftlicher Ausdruck</h2>
+        <div class="instruction-box">
+            Sie haben von einer Freundin folgende E-Mail erhalten. Antworten Sie auf die E-Mail. Schreiben Sie etwas zu allen vier Punkten. Überlegen Sie sich vor dem Schreiben eine passende Reihenfolge der Punkte, einen passenden Betreff, eine passende Anrede, Einleitung und einen passenden Schluss.
+        </div>
+        
+        <div class="text-reading-box" style="background-color: #f9f9f9; font-style: normal; max-height: none;">
+            <strong>Liebe/r ...,</strong><br><br>
+            danke für deine nette Einladung! Ich komme dich sehr gerne besuchen, um dein Land kennenzulernen – wie du weißt, war ich ja noch nie da. Wann wäre die beste Zeit, dich zu besuchen? Ich weiß noch nicht einmal, ob es bei euch im Sommer sehr heiß wird – allzu große Hitze mag ich nämlich nicht so sehr. Und gibt es sonst noch irgendwelche Dinge, die ich wissen sollte, bevor ich diese Reise mache?<br><br>
+            Bitte schreib mir möglichst bald, damit ich mich gut auf die Reise vorbereiten kann.<br><br>
+            Herzliche Grüße<br>
+            <strong>Marianne</strong>
+        </div>
+
+        <h3>Ihre Antwort hier verfassen:</h3>
+        <p style="font-size: 14px; color: #666; background: #fffde7; padding: 10px; border-left: 3px solid var(--secondary);">
+            <strong>Wichtige Inhaltspunkte zu bearbeiten:</strong><br>
+            1. Welche Ausflüge Sie mit Marianne machen wollen<br>
+            2. Was die beste Jahreszeit für die Reise ist<br>
+            3. Welche Kleidung sie mitnehmen soll<br>
+            4. Wie sie sich am besten auf die Reise vorbereiten kann
+        </p>
+        <textarea placeholder="Betreff: Re: Mein Besuch... &#10;&#10;Liebe Marianne, ..."></textarea>
+    </div>
+
+    <!-- MÜNDLICHER AUSDRUCK MODULE -->
+    <div id="sprechen" class="tab-content">
+        <h2>Subtest 5: Mündlicher Ausdruck</h2>
+        
+        <h3>Teil 1: Einander kennenlernen (ca. 15 Minuten)</h3>
+        <div class="instruction-box">Unterhalten Sie sich mit Ihrer Partnerin bzw. Ihrem Partner über folgende Themen:</div>
+        <ul>
+            <li>Name</li>
+            <li>Woher sie oder er kommt</li>
+            <li>Wie sie oder er wohnt (Wohnung, Haus, Garten ...)</li>
+            <li>Familie</li>
+            <li>Wo sie oder er Deutsch gelernt hat</li>
+            <li>Was sie oder er macht (Schule, Studium, Beruf ...)</li>
+            <li>Sprachen (welche? wie lange? warum?)</li>
+        </ul>
+
+        <h3>Teil 2: Über ein Thema sprechen</h3>
+        <div class="instruction-box">
+            Sie haben in einer Zeitschrift etwas zum Thema „Gruppenreisen“ gelesen. Berichten Sie Ihrer Gesprächspartnerin/Ihrem Gesprächspartner darüber. Unterhalten Sie sich dann über das Thema. Sagen Sie Ihre Meinung und erzählen Sie von eigenen Erfahrungen.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="speaker-box">
+                <strong>Teilnehmer/in A</strong><br><br>
+                <div style="border-left: 3px solid var(--primary); padding-left: 10px; font-style: italic;">
+                    "Ich verreise gern in einer Gruppe. Allein reisen macht mir keinen Spaß. Bei Gruppenreisen kann man neue Leute kennen lernen und hat immer Gesellschaft. Außerdem ist ein Reiseführer dabei, der einem die Sehenswürdigkeiten zeigt."
+                </div>
+                <br><small>– Sabine Klostermann, 33 Jahre, Bürokauffrau</small>
+            </div>
+            <div class="speaker-box">
+                <strong>Teilnehmer/in B</strong><br><br>
+                <div style="border-left: 3px solid var(--secondary); padding-left: 10px; font-style: italic;">
+                    "Wenn man mit einer Gruppe unterwegs ist, gibt es meist ein festes Programm. Daher reise ich immer allein. Manchmal möchte ich ausschlafen, manchmal etwas besichtigen. Ganz nach Lust und Laune. In einer Gruppe wäre das nicht möglich."
+                </div>
+                <br><small>– Jens Mühle, 39 Jahre, Physiker</small>
+            </div>
+        </div>
+
+        <h3>Teil 3: Gemeinsam etwas planen</h3>
+        <div class="instruction-box">
+            Sie möchten eine Abschiedsparty für einige nette Deutsche feiern, die Sie im Urlaub kennengelernt haben. Planen Sie diese Party zusammen mit Ihrem Partner/Ihrer Partnerin.
+        </div>
+        <div class="speaker-box" style="max-width: 400px; margin: auto; background: #fffde7; border: 1px dashed #333;">
+            <center><strong>Party-Checkliste</strong></center>
+            <ul>
+                <li>Wann?</li>
+                <li>Wo?</li>
+                <li>Essen</li>
+                <li>Getränke</li>
+                <li>Wer bezahlt wofür?</li>
+            </ul>
+        </div>
+    </div>
+
+    <button id="btn-submit-quiz" class="btn-submit" onclick="evaluateQuiz()">Prüfungsabschnitte Auswerten</button>
+
+    <div id="results" class="results-box">
+        <h3>Ihr Testergebnis</h3>
+        <p id="score-text"></p>
+    </div>
+</div>
+
+<script>
+    let currentUserName = "";
+    let currentUserEmail = "";
+
+    function startTest(event) {
+        event.preventDefault();
+        
+        // Nutzerdaten speichern
+        currentUserName = document.getElementById('username').value.trim();
+        currentUserEmail = document.getElementById('useremail').value.trim();
+
+        if(currentUserName && currentUserEmail) {
+            // Login-Box verstecken
+            document.getElementById('login-screen').style.display = 'none';
+            
+            // Navigation und Inhalte freischalten
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('lesen1').classList.add('active');
+            document.getElementById('btn-submit-quiz').style.display = 'block';
+        }
+    }
+
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    // Hilfsfunktion zur visuellen Kennzeichnung und Korrektur
+    function checkAnswer(blockId, isCorrect, correctValue) {
+        const block = document.getElementById(blockId);
+        if (!block) return;
+
+        // Vorherige Markierungen / Korrekturen löschen
+        block.classList.remove('correct-answer', 'wrong-answer');
+        const oldCorrection = block.querySelector('.correction-text');
+        if (oldCorrection) oldCorrection.remove();
+
+        if (isCorrect) {
+            block.classList.add('correct-answer');
+        } else {
+            block.classList.add('wrong-answer');
+            // Korrekte Antwort unter der Frage einfügen
+            const correction = document.createElement('span');
+            correction.className = 'correction-text';
+            correction.innerText = `Lösung: ${correctValue}`;
+            block.appendChild(correction);
+        }
+    }
+
+    function evaluateQuiz() {
+        let score = 0;
+        let total = 50; 
+
+        // --- LESEN TEIL 1 ---
+        let ans_l_q1 = document.getElementById('l_q1').value;
+        let is_l_q1 = (ans_l_q1 === 'i'); if(is_l_q1) score++;
+        checkAnswer('block_l_q1', is_l_q1, 'i');
+
+        let ans_l_q2 = document.getElementById('l_q2').value;
+        let is_l_q2 = (ans_l_q2 === 'd'); if(is_l_q2) score++;
+        checkAnswer('block_l_q2', is_l_q2, 'd');
+
+        let ans_l_q3 = document.getElementById('l_q3').value;
+        let is_l_q3 = (ans_l_q3 === 'b'); if(is_l_q3) score++;
+        checkAnswer('block_l_q3', is_l_q3, 'b');
+
+        let ans_l_q4 = document.getElementById('l_q4').value;
+        let is_l_q4 = (ans_l_q4 === 'f'); if(is_l_q4) score++;
+        checkAnswer('block_l_q4', is_l_q4, 'f');
+
+        let ans_l_q5 = document.getElementById('l_q5').value;
+        let is_l_q5 = (ans_l_q5 === 'h'); if(is_l_q5) score++;
+        checkAnswer('block_l_q5', is_l_q5, 'h');
+
+
+        // --- LESEN TEIL 2 ---
+        let q6 = document.querySelector('input[name="q6"]:checked');
+        let is_q6 = (q6 && q6.value === 'c'); if(is_q6) score++;
+        checkAnswer('block_q6', is_q6, 'c');
+
+        let q7 = document.querySelector('input[name="q7"]:checked');
+        let is_q7 = (q7 && q7.value === 'c'); if(is_q7) score++;
+        checkAnswer('block_q7', is_q7, 'c');
+
+        let q8 = document.querySelector('input[name="q8"]:checked');
+        let is_q8 = (q8 && q8.value === 'b'); if(is_q8) score++;
+        checkAnswer('block_q8', is_q8, 'b');
+
+        let q9 = document.querySelector('input[name="q9"]:checked');
+        let is_q9 = (q9 && q9.value === 'a'); if(is_q9) score++;
+        checkAnswer('block_q9', is_q9, 'a');
+
+        let q10 = document.querySelector('input[name="q10"]:checked');
+        let is_q10 = (q10 && q10.value === 'a'); if(is_q10) score++;
+        checkAnswer('block_q10', is_q10, 'a');
+
+
+        // --- LESEN TEIL 3 ---
+        let ans_s11 = document.getElementById('l_s11').value;
+        let is_s11 = (ans_s11 === 'b'); if(is_s11) score++;
+        checkAnswer('block_l_s11', is_s11, 'b');
+
+        let ans_s12 = document.getElementById('l_s12').value;
+        let is_s12 = (ans_s12 === 'a'); if(is_s12) score++;
+        checkAnswer('block_l_s12', is_s12, 'a');
+
+        let ans_s13 = document.getElementById('l_s13').value;
+        let is_s13 = (ans_s13 === 'd'); if(is_s13) score++;
+        checkAnswer('block_l_s13', is_s13, 'd');
+
+        let ans_s14 = document.getElementById('l_s14').value;
+        let is_s14 = (ans_s14 === 'x'); if(is_s14) score++;
+        checkAnswer('block_l_s14', is_s14, 'x');
+
+        let ans_s15 = document.getElementById('l_s15').value;
+        let is_s15 = (ans_s15 === 'e'); if(is_s15) score++;
+        checkAnswer('block_l_s15', is_s15, 'e');
+
+        let ans_s16 = document.getElementById('l_s16').value;
+        let is_s16 = (ans_s16 === 'h'); if(is_s16) score++;
+        checkAnswer('block_l_s16', is_s16, 'h');
+
+        let ans_s17 = document.getElementById('l_s17').value;
+        let is_s17 = (ans_s17 === 'k'); if(is_s17) score++;
+        checkAnswer('block_l_s17', is_s17, 'k');
+
+        let ans_s18 = document.getElementById('l_s18').value;
+        let is_s18 = (ans_s18 === 'l'); if(is_s18) score++;
+        checkAnswer('block_l_s18', is_s18, 'l');
+
+        let ans_s19 = document.getElementById('l_s19').value;
+        let is_s19 = (ans_s19 === 'x'); if(is_s19) score++;
+        checkAnswer('block_l_s19', is_s19, 'x');
+
+        let ans_s20 = document.getElementById('l_s20').value;
+        let is_s20 = (ans_s20 === 'i'); if(is_s20) score++;
+        checkAnswer('block_l_s20', is_s20, 'i');
+
+
+        // --- SPRACHBAUSTEINE TEIL 1 ---
+        let b21 = document.querySelector('input[name="b21"]:checked');
+        let is_b21 = (b21 && b21.value === 'a'); if(is_b21) score++;
+        checkAnswer('block_b21', is_b21, 'a) aber');
+
+        let b22 = document.querySelector('input[name="b22"]:checked');
+        let is_b22 = (b22 && b22.value === 'c'); if(is_b22) score++;
+        checkAnswer('block_b22', is_b22, 'c) einer');
+
+        let b23 = document.querySelector('input[name="b23"]:checked');
+        let is_b23 = (b23 && b23.value === 'a'); if(is_b23) score++;
+        checkAnswer('block_b23', is_b23, 'a) bin');
+
+        let b24 = document.querySelector('input[name="b24"]:checked');
+        let is_b24 = (b24 && b24.value === 'b'); if(is_b24) score++;
+        checkAnswer('block_b24', is_b24, 'b) anstrengende');
+
+        let b25 = document.querySelector('input[name="b25"]:checked');
+        let is_b25 = (b25 && b25.value === 'a'); if(is_b25) score++;
+        checkAnswer('block_b25', is_b25, 'a) trotzdem');
+
+        let b26 = document.querySelector('input[name="b26"]:checked');
+        let is_b26 = (b26 && b26.value === 'b'); if(is_b26) score++;
+        checkAnswer('block_b26', is_b26, 'b) in');
+
+        let b27 = document.querySelector('input[name="b27"]:checked');
+        let is_b27 = (b27 && b27.value === 'a'); if(is_b27) score++;
+        checkAnswer('block_b27', is_b27, 'a) gelernt');
+
+        let b28 = document.querySelector('input[name="b28"]:checked');
+        let is_b28 = (b28 && b28.value === 'b'); if(is_b28) score++;
+        checkAnswer('block_b28', is_b28, 'b) denen');
+
+        let b29 = document.querySelector('input[name="b29"]:checked');
+        let is_b29 = (b29 && b29.value === 'b'); if(is_b29) score++;
+        checkAnswer('block_b29', is_b29, 'b) meinen');
+
+        let b30 = document.querySelector('input[name="b30"]:checked');
+        let is_b30 = (b30 && b30.value === 'a'); if(is_b30) score++;
+        checkAnswer('block_b30', is_b30, 'a) dir');
+
+
+        // --- SPRACHBAUSTEINE TEIL 2 ---
+        let ans_bs31 = document.getElementById('bs2_31').value;
+        let is_bs31 = (ans_bs31 === 'h'); if(is_bs31) score++;
+        checkAnswer('block_bs2_31', is_bs31, 'h) FÜR');
+
+        let ans_bs32 = document.getElementById('bs2_32').value;
+        let is_bs32 = (ans_bs32 === 'k'); if(is_bs32) score++;
+        checkAnswer('block_bs2_32', is_bs32, 'k) MIT');
+
+        let ans_bs33 = document.getElementById('bs2_33').value;
+        let is_bs33 = (ans_bs33 === 'i'); if(is_bs33) score++;
+        checkAnswer('block_bs2_33', is_bs33, 'i) GERNE');
+
+        let ans_bs34 = document.getElementById('bs2_34').value;
+        let is_bs34 = (ans_bs34 === 'a'); if(is_bs34) score++;
+        checkAnswer('block_bs2_34', is_bs34, 'a) BESONDERS');
+
+        let ans_bs35 = document.getElementById('bs2_35').value;
+        let is_bs35 = (ans_bs35 === 'b'); if(is_bs35) score++;
+        checkAnswer('block_bs2_35', is_bs35, 'b) DA');
+
+        let ans_bs36 = document.getElementById('bs2_36').value;
+        let is_bs36 = (ans_bs36 === 'o'); if(is_bs36) score++;
+        checkAnswer('block_bs2_36', is_bs36, 'o) WENN');
+
+        let ans_bs37 = document.getElementById('bs2_37').value;
+        let is_bs37 = (ans_bs37 === 'j'); if(is_bs37) score++;
+        checkAnswer('block_bs2_37', is_bs37, 'j) KÖNNTEN');
+
+        let ans_bs38 = document.getElementById('bs2_38').value;
+        let is_bs38 = (ans_bs38 === 'g'); if(is_bs38) score++;
+        checkAnswer('block_bs2_38', is_bs38, 'g) DESHALB');
+
+        let ans_bs39 = document.getElementById('bs2_39').value;
+        let is_bs39 = (ans_bs39 === 'm'); if(is_bs39) score++;
+        checkAnswer('block_bs2_39', is_bs39, 'm) SCHLIESSLICH');
+
+        let ans_bs40 = document.getElementById('bs2_40').value;
+        let is_bs40 = (ans_bs40 === 'e'); if(is_bs40) score++;
+        checkAnswer('block_bs2_40', is_bs40, 'e) DAMIT');
+
+
+        // --- HÖRVERSTEHEN ---
+        let hoerenKeys = {
+            q41: '+', q42: '-', q43: '-', q44: '+', q45: '+',
+            q46: '+', q47: '-', q48: '+', q49: '-', q50: '-',
+            q51: '-', q52: '+', q53: '-', q54: '-', q55: '+',
+            q56: '-', q57: '+', q58: '-', q59: '-', q60: '+'
+        };
+        for (let key in hoerenKeys) {
+            let selected = document.querySelector(`input[name="${key}"]:checked`);
+            let is_correct = (selected && selected.value === hoerenKeys[key]);
+            if(is_correct) score++;
+            checkAnswer(`block_${key}`, is_correct, hoerenKeys[key] === '+' ? 'PLUS (+)' : 'MINUS (-)');
+        }
+
+        // Ergebnis ausgeben samt Personalisierung
+        document.getElementById('score-text').innerHTML = `
+            <strong>Teilnehmer:</strong> ${currentUserName}<br>
+            <strong>E-Mail:</strong> ${currentUserEmail}<br><br>
+            <strong>Ergebnis:</strong> Sie haben <strong>${score} von ${total}</strong> Aufgaben im automatisch auswertbaren Teil richtig gelöst.<br>
+            <small>Hinweis: Die Module 'Schriftlicher Ausdruck' und 'Mündlicher Ausdruck' müssen separat bewertet werden.</small>
+        `;
+        document.getElementById('results').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+<!-- Floating Action Button to Trigger the Menu -->
+<button id="menu-toggle-btn" aria-label="Toggle Navigation Menu">☰</button>
+
+<!-- Retractable Menu Window -->
+<div id="retractable-menu-box" class="hidden">
+  <div class="menu-header">
+    <h3>Quick Access</h3>
+    <button id="menu-close-btn">&times;</button>
+  </div>
+  
+  <hr>
+
+  <!-- Navigation Links -->
+  <nav class="menu-links">
+    <a href="/home" class="menu-item data-home">🏠 Back to Home</a>
+    <div class="module-section">
+      <h4>Modules</h4>
+      <a href="/modules/reading" class="menu-item">📖 Reading (Lesen)</a>
+      <a href="/modules/listening" class="menu-item">🎧 Listening (Hören)</a>
+      <a href="/modules/writing" class="menu-item">✍️ Writing (Schreiben)</a>
+      <a href="/modules/speaking" class="menu-item">🗣️ Speaking (Sprechen)</a>
+    </div>
+  </nav>
+
+  <hr>
+
+  <!-- PDF Upload Section -->
+  <div class="upload-section">
+    <h4>Add Custom TELC B1 PDF</h4>
+    <form id="menu-pdf-upload-form" enctype="multipart/form-data">
+      <label for="telc-pdf-file" class="custom-file-upload">
+        📁 Choose PDF
+      </label>
+      <input type="file" id="telc-pdf-file" accept=".pdf" required />
+      <span id="file-name-ready">No file selected</span>
+      <button type="submit" class="btn-upload-submit">Process for Simulation</button>
+    </form>
+    <div id="upload-status-msg"></div>
+  </div>
+</div>
+</body>
+</html>
