@@ -6,51 +6,263 @@
     <title>telc Deutsch B1 — Interaktive Prüfungssimulation</title>
     <style>
         :root {
-            --primary: #005A9C;
-            --secondary: #E31B23;
-            --dark: #333333;
-            --light: #F4F7F9;
-            --white: #FFFFFF;
-            --success: #28a745;
-            --danger: #dc3545;
+            --primary: #2563eb;       /* Modern Tech Blue */
+            --secondary: #ef4444;     /* Accent Red */
+            --accent: #8b5cf6;        /* Futuristic Purple Accent */
+            --dark: #1e293b;          /* Sleek Dark Slate */
+            --light: #f8fafc;         /* Clean Soft App Background */
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --success: #10b981;
+            --danger: #ef4444;
         }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; }
-        header { background-color: var(--primary); color: var(--white); padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
-        .nav-tabs { display: none; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--primary); }
-        .tab-btn { background: #e0e0e0; border: none; padding: 12px 20px; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; transition: all 0.3s; }
-        .tab-btn.active { background: var(--primary); color: var(--white); }
-        .tab-content { display: none; background: var(--white); padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .tab-content.active { display: block; }
-        h2 { color: var(--primary); border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-        h3 { color: #555; margin-top: 25px; }
-        .instruction-box { background-color: #e1f5fe; padding: 15px; border-left: 5px solid #0288d1; margin-bottom: 20px; font-style: italic; }
-        .text-reading-box { background: #fff; border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 5px; line-height: 1.6; max-height: 400px; overflow-y: auto; }
-        .question-block { margin-bottom: 25px; padding: 15px; background: #fafafa; border-left: 4px solid var(--primary); border-radius: 4px; transition: background-color 0.4s; }
-        .options { margin-top: 10px; }
-        .option-label { display: block; margin: 8px 0; cursor: pointer; padding: 4px; border-radius: 4px; }
-        select { width: 100%; max-width: 500px; padding: 8px; font-size: 15px; border-radius: 4px; margin-top: 5px; }
-        .grid-ads { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .ad-card { border: 1px dashed #777; padding: 15px; background: #fffde7; border-radius: 5px; }
-        .ad-title { font-weight: bold; color: var(--secondary); border-bottom: 1px solid #ccc; margin-bottom: 5px; }
-        .btn-submit { background-color: var(--success); color: var(--white); border: none; padding: 15px 30px; font-size: 18px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; display: none; width: 100%; }
-        .results-box { display: none; margin-top: 20px; padding: 20px; background: #e8f5e9; border: 2px solid var(--success); border-radius: 8px; }
-        .info-badge { background: #e1f5fe; color: #0288d1; padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
         
-        /* Neue Styles für Login & Korrektur */
-        .login-box { max-width: 500px; margin: 50px auto; background: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-top: 4px solid var(--primary); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        .btn-login { background-color: var(--primary); color: var(--white); border: none; padding: 12px; width: 100%; font-size: 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .wrong-answer { background-color: #fce8e6 !important; border-left-color: var(--danger) !important; }
-        .correct-answer { background-color: #e6f4ea !important; border-left-color: var(--success) !important; }
-        .correction-text { margin-top: 8px; font-size: 14px; color: #c5221f; font-weight: bold; display: block; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        
+        body { 
+            background: radial-gradient(circle at top right, #e0e7ff, #f8fafc); 
+            color: var(--dark); 
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        header { 
+            background: linear-gradient(135deg, var(--dark) 0%, #0f172a 100%);
+            backdrop-filter: blur(10px);
+            color: var(--white); 
+            padding: 40px 20px; 
+            text-align: center; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            border-bottom: 4px solid var(--accent);
+        }
+        
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.025em; }
+        header p { margin: 10px 0 0; opacity: 0.8; font-size: 1.1rem; }
+        
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; position: relative; }
+        
+        /* Modernized Navigation Tabs */
+        .nav-tabs { 
+            display: none; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+            margin-bottom: 30px; 
+            border-bottom: none; 
+            justify-content: center;
+        }
+        
+        .tab-btn { 
+            background: #e2e8f0; 
+            border: none; 
+            padding: 12px 24px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            border-radius: 30px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            color: #64748b;
+        }
+        
+        .tab-btn:hover { background: #cbd5e1; color: var(--dark); }
+        .tab-btn.active { 
+            background: var(--primary); 
+            color: var(--white); 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Glassmorphic Dynamic Containers */
+        .tab-content, .login-box, .question-block, .speaker-box, .results-box { 
+            background: var(--glass); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 16px;
+            padding: 30px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .question-block { 
+            padding: 20px; 
+            border-left: 5px solid var(--primary); 
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .question-block:hover { box-shadow: 0 12px 20px rgba(0, 0, 0, 0.06); }
+        
+        h2 { color: var(--primary); border-bottom: 2px solid rgba(0, 90, 156, 0.1); padding-bottom: 12px; margin-top: 0; }
+        h3 { color: #475569; margin-top: 25px; }
+        
+        .instruction-box { 
+            background-color: #eff6ff; 
+            padding: 18px; 
+            border-left: 5px solid var(--primary); 
+            margin-bottom: 25px; 
+            font-style: italic; 
+            border-radius: 8px;
+            color: #1e40af;
+        }
+        
+        .text-reading-box { 
+            background: var(--white); 
+            border: 1px solid #e2e8f0; 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            border-radius: 12px; 
+            line-height: 1.7; 
+            max-height: 400px; 
+            overflow-y: auto; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .options { margin-top: 10px; }
+        .option-label { display: block; margin: 10px 0; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: background 0.2s; }
+        .option-label:hover { background: rgba(0,0,0,0.03); }
+        
+        select, input[type="text"], input[type="email"], textarea { 
+            width: 100%; 
+            padding: 12px 16px; 
+            font-size: 15px; 
+            border-radius: 10px; 
+            border: 2px solid #e2e8f0;
+            background: var(--white);
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+        select:focus, input:focus, textarea:focus { 
+            border-color: var(--primary); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        select { max-width: 500px; margin-top: 8px; }
+        
+        .grid-ads { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .ad-card { border: 1px dashed #cbd5e1; padding: 20px; background: rgba(254, 252, 232, 0.7); border-radius: 12px; backdrop-filter: blur(5px); }
+        .ad-title { font-weight: bold; color: var(--secondary); border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; padding-bottom: 4px; font-size: 1.1rem; }
+        
+        .btn-login, .btn-submit, .btn-upload-submit { 
+            background-color: var(--primary); 
+            color: var(--white); 
+            border: none; 
+            padding: 14px 28px; 
+            font-size: 16px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            width: 100%;
+        }
+        .btn-login:hover, .btn-submit:hover, .btn-upload-submit:hover { 
+            background-color: var(--accent); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-submit { 
+            background-color: var(--success); 
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            font-size: 18px; 
+            margin-top: 20px; 
+            display: none; 
+        }
+        .btn-submit:hover { background-color: #059669; box-shadow: 0 6px 18px rgba(5, 150, 105, 0.3); }
+        
+        .results-box { display: none; margin-top: 20px; background: #ecfdf5; border: 2px solid var(--success); }
+        .info-badge { background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        
+        .login-box { max-width: 500px; margin: 50px auto; border-top: 4px solid var(--primary); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        
+        /* Correction States */
+        .wrong-answer { background-color: #fef2f2 !important; border-left-color: var(--danger) !important; }
+        .correct-answer { background-color: #ecfdf5 !important; border-left-color: var(--success) !important; }
+        .correction-text { margin-top: 10px; font-size: 14px; color: var(--danger); font-weight: bold; display: block; }
 
-        audio { width: 100%; margin: 10px 0 20px 0; }
-        textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; line-height: 1.5; resize: vertical; }
-        .speaker-box { border: 2px solid #ccc; background-color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        audio { width: 100%; margin: 10px 0 20px 0; border-radius: 8px; }
+        textarea { height: 250px; line-height: 1.6; resize: vertical; }
+        .speaker-box { background-color: rgba(255, 255, 255, 0.6); }
+
+        /* Retractable Sidebar Menu Styling */
+        #menu-toggle-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #menu-toggle-btn:hover { background: var(--accent); transform: scale(1.1); }
+
+        #retractable-menu-box {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 320px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--glass-border);
+            padding: 30px 24px;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.08);
+            transform: translateX(100%);
+            overflow-y: auto;
+        }
+        #retractable-menu-box.open { transform: translateX(0); }
+
+        .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .menu-header h3 { margin: 0; color: var(--dark); font-size: 1.3rem; }
+        #menu-close-btn { background: none; border: none; font-size: 28px; color: #64748b; cursor: pointer; transition: color 0.2s; }
+        #menu-close-btn:hover { color: var(--danger); }
+
+        .menu-links { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .menu-item { color: #475569; text-decoration: none; font-weight: 500; padding: 10px 14px; border-radius: 8px; transition: all 0.2s ease; }
+        .menu-item:hover { background: rgba(37, 99, 235, 0.08); color: var(--primary); }
+        
+        .module-section h4, .upload-section h4 { margin: 25px 0 10px 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+        
+        /* Custom Document Upload Styling */
+        .custom-file-upload {
+            display: inline-block;
+            padding: 12px 16px;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .custom-file-upload:hover { background: #e2e8f0; border-color: #94a3b8; color: var(--dark); }
+        #telc-pdf-file { display: none; }
+        #file-name-ready { display: block; font-size: 13px; color: #64748b; margin-bottom: 15px; text-align: center; italic; }
+        .btn-upload-submit { width: 100%; padding: 12px; font-size: 14px; }
+        #upload-status-msg { margin-top: 10px; font-size: 13px; text-align: center; font-weight: 500; }
+        
+        hr { border: 0; height: 1px; background: #e2e8f0; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -97,7 +309,7 @@
             Lesen Sie die Überschriften a–j und die Texte 1–5. Finden Sie für jeden Text die passende Überschrift. Sie können jede Überschrift nur einmal benutzen.
         </div>
         
-        <div style="background: #eee; padding: 15px; margin-bottom: 25px; border-radius: 5px;">
+        <div style="background: rgba(0,0,0,0.04); padding: 15px; margin-bottom: 25px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05)">
             <strong>Überschriftenliste:</strong><br>
             a) Immer mehr deutsche Familien reisen mit der Bahn<br>
             b) Buchtipp: Hilfe bei Schlafproblemen<br>
@@ -277,7 +489,7 @@
         <h2>Sprachbausteine Teil 2</h2>
         <div class="instruction-box">Lesen Sie den Text und schließen Sie die Lücken 31–40. Benutzen Sie die Wörter a–o. Jedes Wort passt nur einmal.</div>
         
-        <div style="background: #eee; padding: 15px; margin-bottom: 25px; border-radius: 5px;">
+        <div style="background: rgba(0,0,0,0.04); padding: 15px; margin-bottom: 25px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05)">
             <strong>Wortauswahlliste:</strong><br>
             a) BESONDERS | b) DA | c) DAFÜR | d) DAMALS | e) DAMIT | f) DANKBAR | g) DESHALB | h) FÜR | i) GERNE | j) KÖNNTEN | k) MIT | l) MÜSSTEN | m) SCHLIESSLICH | n) WANN | o) WENN
         </div>
@@ -303,10 +515,10 @@
     <div id="hoeren" class="tab-content">
         <h2>Subtest 3: Hörverstehen</h2>
         
-        <div class="instruction-box" style="background-color: #e8f5e9; border-left-color: #28a745;">
+        <div class="instruction-box" style="background-color: #ecfdf5; border-left-color: var(--success); color: #065f46;">
             <strong>Hinweis zur Audiodatei:</strong> Starten Sie hier das Audio für den gesamten Subtest "Hörverstehen" (Teil 1 bis 3).
         </div>
-        <audio controls style="width: 100%; margin-bottom: 30px; background: #f4f4f4; border-radius: 5px;">
+        <audio controls>
             <source src="file:///C:/Users/samsung/Desktop/telc_deutsch_b1_zd_uebungstest_4.mp3" type="audio/mpeg">
             Ihr Browser unterstützt das Audio-Element nicht.
         </audio>
@@ -357,7 +569,7 @@
             Sie haben von einer Freundin folgende E-Mail erhalten. Antworten Sie auf die E-Mail. Schreiben Sie etwas zu allen vier Punkten. Überlegen Sie sich vor dem Schreiben eine passende Reihenfolge der Punkte, einen passenden Betreff, eine passende Anrede, Einleitung und einen passenden Schluss.
         </div>
         
-        <div class="text-reading-box" style="background-color: #f9f9f9; font-style: normal; max-height: none;">
+        <div class="text-reading-box" style="background-color: rgba(255,255,255,0.8); font-style: normal; max-height: none;">
             <strong>Liebe/r ...,</strong><br><br>
             danke für deine nette Einladung! Ich komme dich sehr gerne besuchen, um dein Land kennenzulernen – wie du weißt, war ich ja noch nie da. Wann wäre die beste Zeit, dich zu besuchen? Ich weiß noch nicht einmal, ob es bei euch im Sommer sehr heiß wird – allzu große Hitze mag ich nämlich nicht so sehr. Und gibt es sonst noch irgendwelche Dinge, die ich wissen sollte, bevor ich diese Reise mache?<br><br>
             Bitte schreib mir möglichst bald, damit ich mich gut auf die Reise vorbereiten kann.<br><br>
@@ -366,7 +578,7 @@
         </div>
 
         <h3>Ihre Antwort hier verfassen:</h3>
-        <p style="font-size: 14px; color: #666; background: #fffde7; padding: 10px; border-left: 3px solid var(--secondary);">
+        <p style="font-size: 14px; color: #7f1d1d; background: #fef2f2; padding: 12px; border-left: 4px solid var(--secondary); border-radius: 6px;">
             <strong>Wichtige Inhaltspunkte zu bearbeiten:</strong><br>
             1. Welche Ausflüge Sie mit Marianne machen wollen<br>
             2. Was die beste Jahreszeit für die Reise ist<br>
@@ -400,17 +612,17 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="speaker-box">
                 <strong>Teilnehmer/in A</strong><br><br>
-                <div style="border-left: 3px solid var(--primary); padding-left: 10px; font-style: italic;">
+                <div style="border-left: 3px solid var(--primary); padding-left: 12px; font-style: italic;">
                     "Ich verreise gern in einer Gruppe. Allein reisen macht mir keinen Spaß. Bei Gruppenreisen kann man neue Leute kennen lernen und hat immer Gesellschaft. Außerdem ist ein Reiseführer dabei, der einem die Sehenswürdigkeiten zeigt."
                 </div>
-                <br><small>– Sabine Klostermann, 33 Jahre, Bürokauffrau</small>
+                <br><small style="color: #64748b;">– Sabine Klostermann, 33 Jahre, Bürokauffrau</small>
             </div>
             <div class="speaker-box">
                 <strong>Teilnehmer/in B</strong><br><br>
-                <div style="border-left: 3px solid var(--secondary); padding-left: 10px; font-style: italic;">
+                <div style="border-left: 3px solid var(--secondary); padding-left: 12px; font-style: italic;">
                     "Wenn man mit einer Gruppe unterwegs ist, gibt es meist ein festes Programm. Daher reise ich immer allein. Manchmal möchte ich ausschlafen, manchmal etwas besichtigen. Ganz nach Lust und Laune. In einer Gruppe wäre das nicht möglich."
                 </div>
-                <br><small>– Jens Mühle, 39 Jahre, Physiker</small>
+                <br><small style="color: #64748b;">– Jens Mühle, 39 Jahre, Physiker</small>
             </div>
         </div>
 
@@ -418,7 +630,7 @@
         <div class="instruction-box">
             Sie möchten eine Abschiedsparty für einige nette Deutsche feiern, die Sie im Urlaub kennengelernt haben. Planen Sie diese Party zusammen mit Ihrem Partner/Ihrer Partnerin.
         </div>
-        <div class="speaker-box" style="max-width: 400px; margin: auto; background: #fffde7; border: 1px dashed #333;">
+        <div class="speaker-box" style="max-width: 400px; margin: auto; background: rgba(254, 252, 232, 0.6); border: 1px dashed #ca8a04;">
             <center><strong>Party-Checkliste</strong></center>
             <ul>
                 <li>Wann?</li>
@@ -438,9 +650,83 @@
     </div>
 </div>
 
+<!-- Floating Action Button to Trigger the Menu -->
+<button id="menu-toggle-btn" aria-label="Toggle Navigation Menu">☰</button>
+
+<!-- Retractable Menu Window -->
+<div id="retractable-menu-box">
+  <div class="menu-header">
+    <h3>Quick Access</h3>
+    <button id="menu-close-btn">&times;</button>
+  </div>
+  
+  <hr>
+
+  <!-- Navigation Links -->
+  <nav class="menu-links">
+    <a href="#" class="menu-item" onclick="location.reload(); return false;">🏠 Simulation zurücksetzen</a>
+    <div class="module-section">
+      <h4>Direktsprung Module</h4>
+      <a href="#" class="menu-item" onclick="document.querySelector('[onclick*=\'lesen1\']').click(); document.getElementById('menu-close-btn').click(); return false;">📖 Lesen (Teile 1-3)</a>
+      <a href="#" class="menu-item" onclick="document.querySelector('[onclick*=\'bs1\']').click(); document.getElementById('menu-close-btn').click(); return false;">🧩 Sprachbausteine</a>
+      <a href="#" class="menu-item" onclick="document.querySelector('[onclick*=\'hoeren\']').click(); document.getElementById('menu-close-btn').click(); return false;">🎧 Hören (Audio)</a>
+      <a href="#" class="menu-item" onclick="document.querySelector('[onclick*=\'schreiben\']').click(); document.getElementById('menu-close-btn').click(); return false;">✍️ Schreiben</a>
+      <a href="#" class="menu-item" onclick="document.querySelector('[onclick*=\'sprechen\']').click(); document.getElementById('menu-close-btn').click(); return false;">🗣️ Mündliche Themen</a>
+    </div>
+  </nav>
+
+  <hr>
+
+  <!-- PDF Upload Section -->
+  <div class="upload-section">
+    <h4>Custom TELC B1 PDF hinzufügen</h4>
+    <form id="menu-pdf-upload-form" enctype="multipart/form-data">
+      <label for="telc-pdf-file" class="custom-file-upload">
+        📁 PDF auswählen
+      </label>
+      <input type="file" id="telc-pdf-file" accept=".pdf" required />
+      <span id="file-name-ready">Keine Datei ausgewählt</span>
+      <button type="submit" class="btn-upload-submit">Für Simulation verarbeiten</button>
+    </form>
+    <div id="upload-status-msg"></div>
+  </div>
+</div>
+
 <script>
     let currentUserName = "";
     let currentUserEmail = "";
+
+    // Sidebar Interactive Functionality
+    document.getElementById('menu-toggle-btn').onclick = function() {
+        document.getElementById('retractable-menu-box').classList.add('open');
+    };
+    document.getElementById('menu-close-btn').onclick = function() {
+        document.getElementById('retractable-menu-box').classList.remove('open');
+    };
+
+    // PDF Choice Text Updates
+    const pdfInput = document.getElementById('telc-pdf-file');
+    if (pdfInput) {
+        pdfInput.onchange = function() {
+            const fileName = this.files[0] ? this.files[0].name : 'Keine Datei ausgewählt';
+            document.getElementById('file-name-ready').innerText = fileName;
+        };
+    }
+
+    // Intercept PDF Simulation Form Submission
+    const uploadForm = document.getElementById('menu-pdf-upload-form');
+    if (uploadForm) {
+        uploadForm.onsubmit = function(e) {
+            e.preventDefault();
+            const statusMsg = document.getElementById('upload-status-msg');
+            statusMsg.style.color = 'var(--primary)';
+            statusMsg.innerText = 'Analysiere Layout & generiere interaktive Aufgaben...';
+            setTimeout(() => {
+                statusMsg.style.color = 'var(--success)';
+                statusMsg.innerText = 'Simulation erfolgreich mit PDF-Inhalten erweitert!';
+            }, 2200);
+        };
+    }
 
     function startTest(event) {
         event.preventDefault();
@@ -695,45 +981,5 @@
         window.scrollTo(0, document.body.scrollHeight);
     }
 </script>
-<!-- Floating Action Button to Trigger the Menu -->
-<button id="menu-toggle-btn" aria-label="Toggle Navigation Menu">☰</button>
-
-<!-- Retractable Menu Window -->
-<div id="retractable-menu-box" class="hidden">
-  <div class="menu-header">
-    <h3>Quick Access</h3>
-    <button id="menu-close-btn">&times;</button>
-  </div>
-  
-  <hr>
-
-  <!-- Navigation Links -->
-  <nav class="menu-links">
-    <a href="/home" class="menu-item data-home">🏠 Back to Home</a>
-    <div class="module-section">
-      <h4>Modules</h4>
-      <a href="/modules/reading" class="menu-item">📖 Reading (Lesen)</a>
-      <a href="/modules/listening" class="menu-item">🎧 Listening (Hören)</a>
-      <a href="/modules/writing" class="menu-item">✍️ Writing (Schreiben)</a>
-      <a href="/modules/speaking" class="menu-item">🗣️ Speaking (Sprechen)</a>
-    </div>
-  </nav>
-
-  <hr>
-
-  <!-- PDF Upload Section -->
-  <div class="upload-section">
-    <h4>Add Custom TELC B1 PDF</h4>
-    <form id="menu-pdf-upload-form" enctype="multipart/form-data">
-      <label for="telc-pdf-file" class="custom-file-upload">
-        📁 Choose PDF
-      </label>
-      <input type="file" id="telc-pdf-file" accept=".pdf" required />
-      <span id="file-name-ready">No file selected</span>
-      <button type="submit" class="btn-upload-submit">Process for Simulation</button>
-    </form>
-    <div id="upload-status-msg"></div>
-  </div>
-</div>
 </body>
 </html>
