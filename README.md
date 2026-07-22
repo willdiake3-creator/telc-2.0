@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+WELCOME FELL FREE TO TRY OUT AND GIVE US FEEDBACKS
 <html lang="de">
 <head>
     <meta charset="UTF-8">
